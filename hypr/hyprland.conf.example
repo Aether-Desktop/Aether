@@ -1,0 +1,7 @@
+# Example ~/.config/hypr/hyprland.conf for AETHER.
+#
+# The AETHER installer can integrate with an existing Hyprland configuration
+# instead of replacing it. If you prefer a clean setup, copy this file to
+# ~/.config/hypr/hyprland.conf and adjust the monitor line.
+
+source = ~/.config/hypr/aether/aether.conf

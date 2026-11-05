@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="AETHER mark">
+  <defs>
+    <linearGradient id="orbit" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#B9A8FF"/>
+      <stop offset="0.55" stop-color="#8C7BFF"/>
+      <stop offset="1" stop-color="#6FE7DD"/>
+    </linearGradient>
+    <radialGradient id="core" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#EDE8FF"/>
+      <stop offset="0.6" stop-color="#A99BFF"/>
+      <stop offset="1" stop-color="#6FE7DD"/>
+    </radialGradient>
+  </defs>
+  <g fill="none">
+    <circle cx="80" cy="80" r="54" stroke="#2A3145" stroke-width="1.2"/>
+    <ellipse cx="80" cy="80" rx="58" ry="24" stroke="url(#orbit)" stroke-width="3.4" transform="rotate(-24 80 80)"/>
+    <ellipse cx="80" cy="80" rx="58" ry="24" stroke="#6FE7DD" stroke-opacity="0.35" stroke-width="1.6" transform="rotate(52 80 80)"/>
+    <circle cx="80" cy="80" r="15" fill="url(#core)"/>
+    <circle cx="80" cy="80" r="4" fill="#0A0C11"/>
+    <circle cx="131" cy="56" r="4.5" fill="#B9A8FF"/>
+    <circle cx="32" cy="105" r="3" fill="#6FE7DD"/>
+  </g>
+</svg>

@@ -1,0 +1,26 @@
+# Rust
+installer/target/
+installer/dist/
+*.rs.bk
+
+# Node / Astro
+website/node_modules/
+website/dist/
+website/.astro/
+website/.vercel/
+*.log
+
+# Build output
+dist/
+build/
+out/
+
+# Editor / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Local runtime state
+*.local.json
+.aether-state/

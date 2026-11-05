@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="24%" r="90%">
+      <stop offset="0" stop-color="#1b2140"/>
+      <stop offset="0.42" stop-color="#111527"/>
+      <stop offset="1" stop-color="#07080e"/>
+    </radialGradient>
+    <radialGradient id="aurora" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#8c7bff" stop-opacity="0.55"/>
+      <stop offset="0.55" stop-color="#6fe7dd" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#6fe7dd" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="warm" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ffb4c8" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#ffb4c8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="60"/></filter>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <ellipse cx="1450" cy="230" rx="620" ry="420" fill="url(#aurora)" filter="url(#soft)"/>
+  <ellipse cx="420" cy="860" rx="520" ry="360" fill="url(#warm)" filter="url(#soft)"/>
+
+  <circle cx="1450" cy="230" r="330" fill="none" stroke="url(#line)" stroke-width="2"/>
+  <circle cx="1450" cy="230" r="430" fill="none" stroke="url(#line)" stroke-width="1"/>
+  <circle cx="420" cy="860" r="230" fill="none" stroke="url(#line)" stroke-width="1"/>
+
+  <path d="M0 760 C 320 640, 640 900, 960 780 S 1600 640, 1920 760 L1920 1080 L0 1080 Z"
+        fill="#0b0e18" opacity="0.72"/>
+  <path d="M0 840 C 380 760, 720 960, 1080 860 S 1640 760, 1920 850 L1920 1080 L0 1080 Z"
+        fill="#080a12" opacity="0.82"/>
+</svg>

@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# AETHER session launcher.
+# Runs Quickshell with an explicit QML entry point; no shell interpolation of
+# user input and no network access.
+set -euo pipefail
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+find_data_dir() {
+    if [[ -n "${AETHER_DATA_DIR:-}" && -f "${AETHER_DATA_DIR}/shell/shell.qml" ]]; then
+        printf '%s\n' "${AETHER_DATA_DIR}"
+        return 0
+    fi
+    local candidate
+    for candidate in \
+        "${script_dir}/.." \
+        "${script_dir}/../share/aether" \
+        "${HOME}/.local/share/aether" \
+        "/usr/local/share/aether" \
+        "/usr/share/aether"; do
+        if [[ -f "${candidate}/shell/shell.qml" ]]; then
+            (cd -- "${candidate}" && pwd)
+            return 0
+        fi
+    done
+    return 1
+}
+
+data_dir="$(find_data_dir || true)"
+if [[ -z "${data_dir}" ]]; then
+    printf 'aether: cannot find the AETHER data directory.\n' >&2
+    printf 'Set AETHER_DATA_DIR to the checkout or installation root.\n' >&2
+    exit 1
+fi
+
+quickshell_bin="${AETHER_QUICKSHELL:-}"
+if [[ -z "${quickshell_bin}" ]]; then
+    if command -v quickshell >/dev/null 2>&1; then
+        quickshell_bin="quickshell"
+    elif command -v qs >/dev/null 2>&1; then
+        quickshell_bin="qs"
+    else
+        printf 'aether: Quickshell was not found.\n' >&2
+        printf 'Install quickshell, or set AETHER_QUICKSHELL to its binary.\n' >&2
+        exit 1
+    fi
+fi
+
+app_entry() {
+    local app="$1"
+    local entry="${data_dir}/apps/${app}/shell.qml"
+    if [[ ! -f "${entry}" ]]; then
+        printf 'aether: application entry point missing: %s\n' "${entry}" >&2
+        exit 1
+    fi
+    exec "${quickshell_bin}" -p "${entry}"
+}
+
+usage() {
+    cat <<'EOF'
+AETHER — Your desktop. Your atmosphere. Your AETHER.
+
+Usage:
+  aether <command>
+
+Commands:
+  shell                 Start the AETHER desktop shell
+  settings              Open AETHER Settings
+  music                 Open AETHER Music
+  monitor               Open AETHER System Monitor
+  wallpaper             Open AETHER Wallpaper
+  power                 Open AETHER Power Menu
+  files                 Open AETHER Files
+  hyprland [args...]    Manage the generated Hyprland include
+  doctor                Print dependency and path diagnostics
+  version               Print the AETHER version
+  help                  Show this message
+
+Environment:
+  AETHER_DATA_DIR       Override the installation/checkout root
+  AETHER_QUICKSHELL     Override the Quickshell binary
+EOF
+}
+
+doctor() {
+    local version="1.0.0"
+    [[ -f "${data_dir}/VERSION" ]] && version="$(tr -d '[:space:]' < "${data_dir}/VERSION")"
+    printf 'AETHER %s\n' "${version}"
+    printf 'Data directory: %s\n' "${data_dir}"
+    printf 'Quickshell:     %s\n' "${quickshell_bin}"
+    if command -v "${quickshell_bin}" >/dev/null 2>&1; then
+        "${quickshell_bin}" --version 2>/dev/null | head -n 1 || true
+    fi
+    printf 'Session:        %s\n' "${XDG_SESSION_TYPE:-unknown}"
+    printf 'Desktop:        %s\n' "${XDG_CURRENT_DESKTOP:-unknown}"
+    printf 'Hyprland:       %s\n' "$(command -v Hyprland >/dev/null 2>&1 && printf present || printf missing)"
+    printf 'python3:        %s\n' "$(command -v python3 >/dev/null 2>&1 && printf present || printf missing)"
+    printf 'brightnessctl:  %s\n' "$(command -v brightnessctl >/dev/null 2>&1 && printf present || printf missing)"
+    printf 'hyprsunset:     %s\n' "$(command -v hyprsunset >/dev/null 2>&1 && printf present || printf missing)"
+    printf 'PipeWire:       %s\n' "$(command -v pipewire >/dev/null 2>&1 && printf present || printf missing)"
+    printf 'NetworkManager: %s\n' "$(command -v nmcli >/dev/null 2>&1 && printf present || printf missing)"
+    printf 'Bluetooth:      %s\n' "$(command -v bluetoothctl >/dev/null 2>&1 && printf present || printf missing)"
+    printf 'Wallpaper:      %s\n' "$(command -v aether-wallpaper >/dev/null 2>&1 && aether-wallpaper status || printf 'helper not on PATH')"
+}
+
+command="${1:-help}"
+shift || true
+
+case "${command}" in
+    shell) exec "${quickshell_bin}" -p "${data_dir}/shell/shell.qml" "$@" ;;
+    settings) app_entry settings ;;
+    music) app_entry music ;;
+    monitor|system-monitor) app_entry system-monitor ;;
+    wallpaper) app_entry wallpaper ;;
+    power|power-menu) app_entry power-menu ;;
+    files|file-browser) app_entry file-browser ;;
+    hyprland)
+        helper="${data_dir}/scripts/aether-hyprland"
+        [[ -x "${helper}" ]] || { printf 'aether: missing %s\n' "${helper}" >&2; exit 1; }
+        exec "${helper}" "$@"
+        ;;
+    doctor) doctor ;;
+    version)
+        if [[ -f "${data_dir}/VERSION" ]]; then cat "${data_dir}/VERSION"
+        else printf '1.0.0\n'; fi
+        ;;
+    help|-h|--help) usage ;;
+    *)
+        printf 'aether: unknown command: %s\n\n' "${command}" >&2
+        usage >&2
+        exit 2
+        ;;
+esac

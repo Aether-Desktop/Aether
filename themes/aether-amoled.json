@@ -1,0 +1,64 @@
+{
+  "$schema": "https://aether-desktop.dev/schema/theme-v1.json",
+  "schemaVersion": 1,
+  "id": "aether-amoled",
+  "name": "AETHER AMOLED",
+  "author": "AETHER Project",
+  "version": "1.0.0",
+  "variant": "dark",
+  "description": "True black for OLED panels with maximum contrast and minimal glow.",
+  "colors": {
+    "background": "#000000",
+    "surface": "#060708",
+    "surfaceContainer": "#0A0B0D",
+    "surfaceContainerHigh": "#111318",
+    "surfaceContainerHighest": "#1A1D24",
+    "onSurface": "#F2F3F7",
+    "onSurfaceVariant": "#A9AFBF",
+    "outline": "#2A2F3B",
+    "primary": "#C3B5FF",
+    "onPrimary": "#140C33",
+    "primaryContainer": "#2E2460",
+    "onPrimaryContainer": "#EBE5FF",
+    "secondary": "#7FF5E9",
+    "onSecondary": "#00201D",
+    "tertiary": "#FFC0D1",
+    "error": "#FFB4AB",
+    "warning": "#FFD28A",
+    "success": "#9BF0B0",
+    "glow": "#9F8DFF",
+    "wallpaperTint": "#050608",
+    "shadow": "#000000",
+    "scrim": "#000000"
+  },
+  "radii": {
+    "xs": 6,
+    "sm": 10,
+    "md": 16,
+    "lg": 22,
+    "xl": 28,
+    "full": 999
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "xxl": 32
+  },
+  "typography": {
+    "family": "Inter",
+    "displayFamily": "Inter Display",
+    "monoFamily": "JetBrains Mono",
+    "scale": 1.0
+  },
+  "effects": {
+    "blur": true,
+    "blurSize": 24,
+    "opacity": 0.92,
+    "borderOpacity": 0.12,
+    "shadow": true,
+    "animationScale": 1.0
+  }
+}

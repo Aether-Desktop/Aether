@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""Wallpaper backend bridge for AETHER.
+
+AETHER stores the selected wallpaper in its own config; this helper tells a
+running compositor backend to paint it. Supported backends: swww, hyprpaper.
+If neither is running the path is still stored, and the helper says so instead
+of pretending the wallpaper changed.
+"""
+from __future__ import annotations
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+INSTALL_ROOT = Path(__file__).resolve().parent.parent
+IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif", ".svg"}
+
+
+def resolve(path: str) -> Path:
+    candidate = Path(os.path.expanduser(path))
+    if candidate.is_absolute():
+        return candidate
+    return INSTALL_ROOT / candidate
+
+
+def run(args: list[str], timeout: float = 4.0) -> subprocess.CompletedProcess[str] | None:
+    try:
+        return subprocess.run(
+            args, capture_output=True, text=True, timeout=timeout, check=False
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def swww_available() -> bool:
+    if shutil.which("swww") is None:
+        return False
+    result = run(["swww", "query"])
+    return result is not None and result.returncode == 0
+
+
+def hyprpaper_available() -> bool:
+    if shutil.which("hyprctl") is None:
+        return False
+    result = run(["hyprctl", "hyprpaper", "listloaded"])
+    return result is not None and result.returncode == 0 and "error" not in (result.stdout or "").lower()
+
+
+def status() -> int:
+    if swww_available():
+        print("swww is running and available.")
+        return 0
+    if hyprpaper_available():
+        print("hyprpaper responds through hyprctl and is available.")
+        return 0
+    print("No wallpaper backend is running. Install and start swww or hyprpaper.")
+    return 0
+
+
+def set_wallpaper(path_text: str) -> int:
+    path = resolve(path_text)
+    if not path.exists():
+        print(f"Wallpaper not found: {path}", file=sys.stderr)
+        return 1
+    if path.suffix.lower() not in IMAGE_SUFFIXES:
+        print(f"Unsupported image type: {path.suffix}", file=sys.stderr)
+        return 1
+
+    if swww_available():
+        if path.suffix.lower() == ".svg":
+            print(
+                "swww does not rasterise SVG files. The wallpaper is stored, but "
+                "convert it to PNG/WebP for swww.",
+                file=sys.stderr,
+            )
+            return 2
+        result = run(
+            ["swww", "img", str(path), "--transition-type", "fade"],
+            timeout=15.0,
+        )
+        if result is not None and result.returncode == 0:
+            print(f"Wallpaper set through swww: {path}")
+            return 0
+        message = (result.stderr if result else "swww failed").strip()
+        print(f"swww could not set the wallpaper: {message}", file=sys.stderr)
+        return 2
+
+    if hyprpaper_available():
+        preload = run(["hyprctl", "hyprpaper", "preload", str(path)], timeout=15.0)
+        wallpaper = run(["hyprctl", "hyprpaper", "wallpaper", f",{path}"], timeout=15.0)
+        if wallpaper is not None and wallpaper.returncode == 0:
+            print(f"Wallpaper set through hyprpaper: {path}")
+            return 0
+        message = ""
+        if preload is not None and preload.stderr.strip():
+            message = preload.stderr.strip()
+        if wallpaper is not None and wallpaper.stderr.strip():
+            message = wallpaper.stderr.strip()
+        print(f"hyprpaper could not set the wallpaper: {message or 'unknown error'}", file=sys.stderr)
+        return 2
+
+    print(
+        "No wallpaper backend is running. The AETHER configuration was updated, "
+        "but nothing was painted. Start swww or hyprpaper and try again."
+    )
+    return 0
+
+
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(prog="aether-wallpaper")
+    sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("status", help="report the available wallpaper backend")
+    setter = sub.add_parser("set", help="paint a wallpaper through the active backend")
+    setter.add_argument("path")
+    args = parser.parse_args(argv)
+
+    if args.command == "status":
+        return status()
+    return set_wallpaper(args.path)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

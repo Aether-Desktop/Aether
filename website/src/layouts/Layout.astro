@@ -1,0 +1,65 @@
+interface Props {}
+
+const nav = [
+  { label: 'Home', href: '/' },
+  { label: 'Features', href: '/features' },
+  { label: 'Gallery', href: '/gallery' },
+  { label: 'Download', href: '/download' },
+  { label: 'Install', href: '/install' },
+  { label: 'Docs', href: '/docs' },
+  { label: 'Changelog', href: '/changelog' },
+  { label: 'Contributing', href: '/contributing' },
+  { label: 'About', href: '/about' },
+];
+
+---
+
+import { type ComponentProps } from 'astro';
+import { Logo } from '../components/Logo';
+
+export function Layout({ children }: ComponentProps) {
+  return (
+    <html lang="en" class="scroll-smooth">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta name="generator" content="Astro" />
+        <title>AETHER — Your desktop. Your atmosphere. Your AETHER.</title>
+        <link rel="icon" type="image/svg+xml" href="/AETHER/assets/branding/aether-mark.svg" />
+        <link rel="stylesheet" href="/AETHER/assets/tailwind.css" />
+      </head>
+      <body class="bg-gray-950 text-gray-100 font-sans antialiased">
+        <header class="sticky top-0 z-50 bg-gray-950/80 backdrop-blur border-b border-gray-800">
+          <nav class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+            <a href="/AETHER/" class="flex items-center gap-3">
+              <Logo size={32} color="currentColor" class="text-violet-400" />
+              <span class="text-xl font-bold tracking-tight">AETHER</span>
+            </a>
+            <ul class="hidden md:flex gap-6 text-sm font-medium">
+              {nav.map((item) => (
+                <li>
+                  <a href={item.href} class="hover:text-violet-400 transition-colors">
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <button class="md:hidden text-gray-300">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </nav>
+        </header>
+        <main>
+          {children}
+        </main>
+        <footer class="border-t border-gray-800 bg-gray-950">
+          <div class="mx-auto max-w-7xl px-4 py-8 text-center text-sm text-gray-500">
+            &copy; {new Date().getFullYear()} AETHER Project &mdash; Licensed under MIT
+          </div>
+        </footer>
+      </body>
+    </html>
+  );
+}

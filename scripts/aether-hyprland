@@ -1,0 +1,304 @@
+#!/usr/bin/env python3
+"""Generate a self-contained Hyprland include for AETHER.
+
+The script never edits Hyprland's main configuration without first creating a
+timestamped backup, and it only adds one managed include block. All writes are
+atomic. It does not use a shell.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import shutil
+import sys
+from datetime import datetime
+from pathlib import Path
+
+BEGIN_MARK = "# >>> AETHER managed include >>>"
+END_MARK = "# <<< AETHER managed include <<<"
+
+INSTALL_ROOT = Path(__file__).resolve().parent.parent
+CONFIG_HOME = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
+AETHER_CONFIG = CONFIG_HOME / "aether" / "config.json"
+HYPR_DIR = CONFIG_HOME / "hypr"
+GENERATED = HYPR_DIR / "aether" / "generated.conf"
+BACKUP_DIR = HYPR_DIR / "aether" / "backups"
+
+
+def clamp_int(value, low: int, high: int, fallback: int) -> int:
+    try:
+        number = int(float(value))
+    except (TypeError, ValueError):
+        return fallback
+    return max(low, min(high, number))
+
+
+def load_json(path: Path) -> dict:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def hyprland_settings() -> dict:
+    data = load_json(AETHER_CONFIG)
+    section = data.get("hyprland")
+    if not isinstance(section, dict):
+        section = {}
+    defaults = {
+        "manageConfig": False,
+        "gapsIn": 5,
+        "gapsOut": 12,
+        "borderSize": 2,
+        "rounding": 16,
+        "blur": True,
+        "shadows": True,
+        "animationPreset": "aether",
+    }
+    merged = {**defaults, **section}
+    appearance = data.get("appearance")
+    if isinstance(appearance, dict):
+        merged["theme"] = appearance.get("theme", "aether-dark")
+    else:
+        merged["theme"] = "aether-dark"
+    return merged
+
+
+def hex_to_rgba(value: str, alpha: int = 255) -> str:
+    text = str(value or "").strip().lstrip("#")
+    if not re.fullmatch(r"[0-9a-fA-F]{6}", text):
+        text = "A99BFF"
+    text = text.upper()
+    return f"rgba({text}{alpha:02X})"
+
+
+def theme_colors(theme_id: str) -> dict:
+    fallback = {"primary": "#A99BFF", "outline": "#394154", "surface": "#12151D"}
+    candidates = [
+        CONFIG_HOME / "aether" / "themes" / f"{theme_id}.json",
+        INSTALL_ROOT / "themes" / f"{theme_id}.json",
+        INSTALL_ROOT / "themes" / "aether-dark.json",
+    ]
+    for path in candidates:
+        data = load_json(path)
+        colors = data.get("colors")
+        if isinstance(colors, dict):
+            return {
+                "primary": colors.get("primary", fallback["primary"]),
+                "outline": colors.get("outline", fallback["outline"]),
+                "surface": colors.get("surface", fallback["surface"]),
+            }
+    return fallback
+
+
+def animation_block(preset: str) -> str:
+    if preset == "off" or preset == "reduced":
+        return (
+            "animations {\n"
+            "    enabled = false\n"
+            "}\n"
+        )
+    if preset == "snappy":
+        curve = "snappy, 0.2, 0.9, 0.2, 1.0"
+        windows = "animation = windows, 1, 3, snappy, popin 90%"
+        workspaces = "animation = workspaces, 1, 3, snappy, slide"
+        layers = "animation = layers, 1, 3, snappy, slide"
+    else:
+        curve = "aether, 0.22, 0.9, 0.22, 1.0"
+        windows = "animation = windows, 1, 5, aether, popin 92%"
+        workspaces = "animation = workspaces, 1, 5, aether, slide"
+        layers = "animation = layers, 1, 4, aether, slide"
+    return (
+        "animations {\n"
+        "    enabled = true\n"
+        f"    bezier = {curve}\n"
+        f"    {windows}\n"
+        f"    {workspaces}\n"
+        f"    {layers}\n"
+        "    animation = fade, 1, 5, aether\n"
+        "    animation = border, 1, 5, aether\n"
+        "}\n"
+    )
+
+
+def generate(settings: dict, colors: dict) -> str:
+    gaps_in = clamp_int(settings.get("gapsIn"), 0, 64, 5)
+    gaps_out = clamp_int(settings.get("gapsOut"), 0, 96, 12)
+    border = clamp_int(settings.get("borderSize"), 0, 12, 2)
+    rounding = clamp_int(settings.get("rounding"), 0, 48, 16)
+    blur = settings.get("blur") is not False
+    shadows = settings.get("shadows") is not False
+    preset = str(settings.get("animationPreset") or "aether")
+
+    active = hex_to_rgba(colors.get("primary", "#A99BFF"))
+    inactive = hex_to_rgba(colors.get("outline", "#394154"), 0xAA)
+
+    lines = [
+        "# AETHER generated Hyprland include.",
+        "# Do not edit by hand: change AETHER Settings → Hyprland and run",
+        "#   aether hyprland --apply",
+        "",
+        "general {",
+        f"    gaps_in = {gaps_in}",
+        f"    gaps_out = {gaps_out}",
+        f"    border_size = {border}",
+        f"    col.active_border = {active}",
+        f"    col.inactive_border = {inactive}",
+        "}",
+        "",
+        "decoration {",
+        f"    rounding = {rounding}",
+        "    active_opacity = 1.0",
+        "    inactive_opacity = 0.97",
+        "    blur {",
+        f"        enabled = {'true' if blur else 'false'}",
+        "        size = 8",
+        "        passes = 3",
+        "        new_optimizations = true",
+        "        xray = true",
+        "    }",
+        "    shadow {",
+        f"        enabled = {'true' if shadows else 'false'}",
+        "        range = 24",
+        "        render_power = 3",
+        "        color = rgba(00000055)",
+        "    }",
+        "}",
+        "",
+        animation_block(preset).rstrip(),
+        "",
+        "# AETHER layer surfaces: translucent bar, overlays and notifications.",
+        "layerrule = blur, aether-bar",
+        "layerrule = ignorezero, aether-bar",
+        "layerrule = blur, aether-overlay",
+        "layerrule = ignorezero, aether-overlay",
+        "layerrule = blur, aether-osd",
+        "layerrule = ignorezero, aether-osd",
+        "layerrule = blur, aether-notifications",
+        "layerrule = ignorezero, aether-notifications",
+        "",
+        "# Applications built with AETHER use rounded, translucent surfaces.",
+        "windowrulev2 = opacity 0.98 0.94, class:^(aether-.*)$",
+        "windowrulev2 = rounding " + str(rounding) + ", class:^(aether-.*)$",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def atomic_write(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_suffix(path.suffix + ".tmp")
+    temp.write_text(text, encoding="utf-8")
+    os.replace(temp, path)
+
+
+def backup(path: Path) -> Path | None:
+    if not path.exists():
+        return None
+    BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    target = BACKUP_DIR / f"{path.name}.{stamp}.bak"
+    counter = 1
+    while target.exists():
+        target = BACKUP_DIR / f"{path.name}.{stamp}-{counter}.bak"
+        counter += 1
+    shutil.copy2(path, target)
+    return target
+
+
+def main_conf() -> Path:
+    return HYPR_DIR / "hyprland.conf"
+
+
+def include_present(text: str) -> bool:
+    return BEGIN_MARK in text or re.search(
+        r"^\s*source\s*=\s*.*aether/generated\.conf\s*$", text, re.MULTILINE
+    ) is not None
+
+
+def ensure_include() -> str:
+    conf = main_conf()
+    if not conf.exists():
+        return (
+            "No hyprland.conf found; the generated include was written but not sourced.\n"
+            f"Add this line to your Hyprland config:\n    source = {GENERATED}"
+        )
+    text = conf.read_text(encoding="utf-8")
+    if include_present(text):
+        return "AETHER include already present in hyprland.conf."
+    saved = backup(conf)
+    block = (
+        f"\n{BEGIN_MARK}\n"
+        f"source = {GENERATED}\n"
+        f"{END_MARK}\n"
+    )
+    atomic_write(conf, text.rstrip() + "\n" + block)
+    return (
+        f"Added managed include to {conf}."
+        + (f" Backup: {saved}" if saved else "")
+    )
+
+
+def cmd_print(_: argparse.Namespace) -> int:
+    settings = hyprland_settings()
+    colors = theme_colors(str(settings.get("theme") or "aether-dark"))
+    sys.stdout.write(generate(settings, colors))
+    return 0
+
+
+def cmd_status(_: argparse.Namespace) -> int:
+    settings = hyprland_settings()
+    print(f"Config:       {AETHER_CONFIG}")
+    print(f"Generated:    {GENERATED}" + ("" if GENERATED.exists() else " (missing)"))
+    print(f"Hyprland:     {main_conf()}" + ("" if main_conf().exists() else " (missing)"))
+    print(f"Managed:      {'yes' if settings.get('manageConfig') else 'no'}")
+    if main_conf().exists():
+        text = main_conf().read_text(encoding="utf-8")
+        print(f"Include:      {'present' if include_present(text) else 'absent'}")
+    else:
+        print("Include:      not applicable")
+    return 0
+
+
+def cmd_apply(_: argparse.Namespace) -> int:
+    settings = hyprland_settings()
+    colors = theme_colors(str(settings.get("theme") or "aether-dark"))
+    text = generate(settings, colors)
+
+    saved = backup(GENERATED)
+    atomic_write(GENERATED, text)
+    print(f"Wrote {GENERATED}" + (f" (backup: {saved})" if saved else ""))
+
+    if settings.get("manageConfig") is not True:
+        print("hyprland.manageConfig is false; hyprland.conf was not modified.")
+        print(f"To enable it manually, add: source = {GENERATED}")
+        return 0
+
+    print(ensure_include())
+    print("Run `hyprctl reload` or reload Hyprland to apply compositor changes.")
+    return 0
+
+
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        prog="aether-hyprland",
+        description="Preview or write the AETHER-generated Hyprland include.",
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--print", action="store_true", help="print the generated config")
+    group.add_argument("--apply", action="store_true", help="write the include and source it")
+    group.add_argument("--status", action="store_true", help="show paths and include state")
+    args = parser.parse_args(argv)
+
+    if args.apply:
+        return cmd_apply(args)
+    if args.status:
+        return cmd_status(args)
+    return cmd_print(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

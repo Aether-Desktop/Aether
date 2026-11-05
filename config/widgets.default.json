@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "layout": [
+    { "id": "clock", "type": "clock", "enabled": true, "column": "left", "order": 0, "options": { "seconds": false } },
+    { "id": "calendar", "type": "calendar", "enabled": true, "column": "left", "order": 1, "options": {} },
+    { "id": "weather", "type": "weather", "enabled": true, "column": "left", "order": 2, "options": { "units": "metric" } },
+    { "id": "media", "type": "media", "enabled": true, "column": "left", "order": 3, "options": {} },
+    { "id": "stats", "type": "systemStats", "enabled": true, "column": "right", "order": 0, "options": {} },
+    { "id": "battery", "type": "battery", "enabled": true, "column": "right", "order": 1, "options": {} },
+    { "id": "network", "type": "network", "enabled": true, "column": "right", "order": 2, "options": {} },
+    { "id": "workspaces", "type": "workspaceOverview", "enabled": true, "column": "right", "order": 3, "options": {} }
+  ]
+}

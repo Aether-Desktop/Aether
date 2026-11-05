@@ -1,0 +1,16 @@
+export interface Props {
+  size?: number;
+  color?: string;
+}
+
+const { size = 24, color = 'currentColor' } = Astro.props;
+
+const logo = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12" r="10"/>
+  <path d="M12 2a10 10 0 0 0-7.07 17.07"/>
+  <path d="M12 2a10 10 0 0 1 7.07 17.07"/>
+</svg>`;
+
+---
+
+<div set:html={logo} style="width: {size}px; height: {size}px; color: {color}" />

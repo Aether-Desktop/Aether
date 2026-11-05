@@ -1,0 +1,64 @@
+{
+  "$schema": "https://aether-desktop.dev/schema/theme-v1.json",
+  "schemaVersion": 1,
+  "id": "aether-light",
+  "name": "AETHER Light",
+  "author": "AETHER Project",
+  "version": "1.0.0",
+  "variant": "light",
+  "description": "Soft daylight surfaces with the same aurora accent.",
+  "colors": {
+    "background": "#F4F2FA",
+    "surface": "#FFFFFF",
+    "surfaceContainer": "#FFFFFF",
+    "surfaceContainerHigh": "#EEECF6",
+    "surfaceContainerHighest": "#E4E1EF",
+    "onSurface": "#191725",
+    "onSurfaceVariant": "#5B5870",
+    "outline": "#C9C5D8",
+    "primary": "#5B4BD6",
+    "onPrimary": "#FFFFFF",
+    "primaryContainer": "#E3DEFF",
+    "onPrimaryContainer": "#1B1145",
+    "secondary": "#00796F",
+    "onSecondary": "#FFFFFF",
+    "tertiary": "#A23B63",
+    "error": "#B3261E",
+    "warning": "#8A5A00",
+    "success": "#1E6B35",
+    "glow": "#7A6BFF",
+    "wallpaperTint": "#ECE9F8",
+    "shadow": "#000000",
+    "scrim": "#000000"
+  },
+  "radii": {
+    "xs": 6,
+    "sm": 10,
+    "md": 16,
+    "lg": 22,
+    "xl": 28,
+    "full": 999
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "xxl": 32
+  },
+  "typography": {
+    "family": "Inter",
+    "displayFamily": "Inter Display",
+    "monoFamily": "JetBrains Mono",
+    "scale": 1.0
+  },
+  "effects": {
+    "blur": true,
+    "blurSize": 28,
+    "opacity": 0.94,
+    "borderOpacity": 0.08,
+    "shadow": true,
+    "animationScale": 1.0
+  }
+}

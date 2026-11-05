@@ -1,0 +1,113 @@
+{
+  "$schema": "https://aether-desktop.dev/schema/config-v1.json",
+  "schemaVersion": 1,
+  "general": {
+    "language": "en",
+    "startupApps": [
+      "aether shell"
+    ]
+  },
+  "bar": {
+    "enabled": true,
+    "position": "top",
+    "mode": "floating",
+    "height": 44,
+    "margin": 8,
+    "exclusive": false,
+    "autoHide": false,
+    "showWorkspaces": true,
+    "workspaceCount": 6,
+    "showActiveWindow": true,
+    "showClock": true,
+    "clockFormat": "HH:mm",
+    "clockSeconds": false,
+    "showMedia": true,
+    "showTray": true,
+    "showBattery": true,
+    "showNetwork": true,
+    "showBluetooth": true,
+    "showVolume": true,
+    "showNotifications": true,
+    "monitors": []
+  },
+  "dashboard": {
+    "enabled": true,
+    "weather": {
+      "enabled": true,
+      "latitude": null,
+      "longitude": null,
+      "place": "",
+      "units": "metric"
+    },
+    "calendar": true,
+    "events": true,
+    "media": true,
+    "stats": true,
+    "quickActions": true
+  },
+  "notifications": {
+    "doNotDisturb": false,
+    "historySize": 100,
+    "timeout": 6000,
+    "showBody": true,
+    "showImage": true,
+    "grouping": true,
+    "position": "top-right"
+  },
+  "quickSettings": {
+    "toggles": [
+      "wifi",
+      "bluetooth",
+      "nightLight",
+      "darkMode",
+      "dnd",
+      "powerSaver"
+    ]
+  },
+  "launcher": {
+    "width": 640,
+    "maxResults": 8,
+    "showFavorites": true,
+    "showRecent": true,
+    "showCategories": true,
+    "fuzzy": true,
+    "favorites": [],
+    "recent": []
+  },
+  "animations": {
+    "enabled": true,
+    "speed": 1.0,
+    "reducedMotion": false
+  },
+  "appearance": {
+    "theme": "aether-dark",
+    "accentOverride": null,
+    "wallpaper": "assets/wallpapers/aether-default.svg",
+    "fontFamily": "Inter",
+    "fontScale": 1.0,
+    "radiusScale": 1.0,
+    "transparency": 0.86,
+    "blur": true,
+    "wallpaperAccent": true,
+    "nightLight": false,
+    "nightLightTemperature": 4000
+  },
+  "hyprland": {
+    "manageConfig": false,
+    "gapsIn": 5,
+    "gapsOut": 12,
+    "borderSize": 2,
+    "rounding": 16,
+    "blur": true,
+    "shadows": true,
+    "animationPreset": "aether"
+  },
+  "monitors": {
+    "locked": false,
+    "profiles": {}
+  },
+  "updates": {
+    "checkOnStart": true,
+    "channel": "stable"
+  }
+}

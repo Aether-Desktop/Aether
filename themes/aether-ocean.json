@@ -1,0 +1,64 @@
+{
+  "$schema": "https://aether-desktop.dev/schema/theme-v1.json",
+  "schemaVersion": 1,
+  "id": "aether-ocean",
+  "name": "AETHER Ocean",
+  "author": "AETHER Project",
+  "version": "1.0.0",
+  "variant": "dark",
+  "description": "Deep water, teal currents and a bright marine signal.",
+  "colors": {
+    "background": "#041014",
+    "surface": "#081A20",
+    "surfaceContainer": "#0C222A",
+    "surfaceContainerHigh": "#113039",
+    "surfaceContainerHighest": "#19424D",
+    "onSurface": "#E2F1F4",
+    "onSurfaceVariant": "#9DB9C0",
+    "outline": "#2C5059",
+    "primary": "#5FD7D0",
+    "onPrimary": "#00302C",
+    "primaryContainer": "#154A47",
+    "onPrimaryContainer": "#C9FFFA",
+    "secondary": "#8CC9FF",
+    "onSecondary": "#08243D",
+    "tertiary": "#F2C7A0",
+    "error": "#FFB4AB",
+    "warning": "#F5D48A",
+    "success": "#8FE0B4",
+    "glow": "#4BC8C0",
+    "wallpaperTint": "#082329",
+    "shadow": "#000000",
+    "scrim": "#000000"
+  },
+  "radii": {
+    "xs": 6,
+    "sm": 10,
+    "md": 16,
+    "lg": 22,
+    "xl": 28,
+    "full": 999
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "xxl": 32
+  },
+  "typography": {
+    "family": "Inter",
+    "displayFamily": "Inter Display",
+    "monoFamily": "JetBrains Mono",
+    "scale": 1.0
+  },
+  "effects": {
+    "blur": true,
+    "blurSize": 34,
+    "opacity": 0.88,
+    "borderOpacity": 0.12,
+    "shadow": true,
+    "animationScale": 1.0
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "default": "aether-dark",
+  "themes": [
+    {
+      "id": "aether-dark",
+      "name": "AETHER Dark",
+      "variant": "dark",
+      "file": "aether-dark.json",
+      "colors": {
+        "primary": "#A99BFF",
+        "secondary": "#6FE7DD",
+        "surface": "#12151D",
+        "background": "#0A0C11"
+      }
+    },
+    {
+      "id": "aether-light",
+      "name": "AETHER Light",
+      "variant": "light",
+      "file": "aether-light.json",
+      "colors": {
+        "primary": "#5B4BD6",
+        "secondary": "#00796F",
+        "surface": "#FFFFFF",
+        "background": "#F4F2FA"
+      }
+    },
+    {
+      "id": "aether-amoled",
+      "name": "AETHER AMOLED",
+      "variant": "dark",
+      "file": "aether-amoled.json",
+      "colors": {
+        "primary": "#C3B5FF",
+        "secondary": "#7FF5E9",
+        "surface": "#060708",
+        "background": "#000000"
+      }
+    },
+    {
+      "id": "aether-midnight",
+      "name": "AETHER Midnight",
+      "variant": "dark",
+      "file": "aether-midnight.json",
+      "colors": {
+        "primary": "#7FA6FF",
+        "secondary": "#8FE3FF",
+        "surface": "#0E1420",
+        "background": "#070B14"
+      }
+    },
+    {
+      "id": "aether-lavender",
+      "name": "AETHER Lavender",
+      "variant": "dark",
+      "file": "aether-lavender.json",
+      "colors": {
+        "primary": "#D9B8FF",
+        "secondary": "#FFC6E5",
+        "surface": "#191322",
+        "background": "#120E18"
+      }
+    },
+    {
+      "id": "aether-ocean",
+      "name": "AETHER Ocean",
+      "variant": "dark",
+      "file": "aether-ocean.json",
+      "colors": {
+        "primary": "#5FD7D0",
+        "secondary": "#8CC9FF",
+        "surface": "#081A20",
+        "background": "#041014"
+      }
+    },
+    {
+      "id": "aether-forest",
+      "name": "AETHER Forest",
+      "variant": "dark",
+      "file": "aether-forest.json",
+      "colors": {
+        "primary": "#9BE6A8",
+        "secondary": "#E4D98B",
+        "surface": "#0E1A13",
+        "background": "#08110C"
+      }
+    }
+  ]
+}

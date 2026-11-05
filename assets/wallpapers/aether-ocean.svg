@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#0a1a26"/>
+      <stop offset="0.55" stop-color="#0b2a33"/>
+      <stop offset="1" stop-color="#061016"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ffd28a" stop-opacity="0.85"/>
+      <stop offset="0.5" stop-color="#ffb4c8" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#ffb4c8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="90"/></filter>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <circle cx="1420" cy="360" r="300" fill="url(#sun)" filter="url(#blur)"/>
+  <circle cx="1420" cy="360" r="120" fill="#ffd28a" opacity="0.28"/>
+  <path d="M0 720 C 400 620, 760 840, 1180 720 S 1700 620, 1920 700 L1920 1080 L0 1080 Z" fill="#06131a" opacity="0.85"/>
+  <path d="M0 860 C 460 780, 820 940, 1320 840 S 1760 800, 1920 860 L1920 1080 L0 1080 Z" fill="#03090d"/>
+  <g stroke="#6fe7dd" stroke-opacity="0.18" stroke-width="1">
+    <path d="M0 600 H1920"/><path d="M0 640 H1920"/><path d="M0 680 H1920"/>
+  </g>
+</svg>

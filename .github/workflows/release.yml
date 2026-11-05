@@ -1,0 +1,164 @@
+name: Release Installer
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-installer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/index
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: installer/target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-target-
+
+      - name: Build installer (release)
+        working-directory: installer
+        run: cargo build --release
+
+      - name: Strip binary
+        working-directory: installer
+        run: |
+          x86_64-unknown-linux-gnu-strip target/release/aether-installer
+
+      - name: Generate checksums
+        run: |
+          cd installer/target/release
+          sha256sum aether-installer > checksums.txt
+
+      - name: Upload installer binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: aether-installer
+          path: installer/target/release/aether-installer
+          retention-days: 1
+
+      - name: Upload checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: checksums
+          path: installer/target/release/checksums.txt
+          retention-days: 1
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          body: |
+            AETHER ${{ github.ref_name }} release.
+
+            ### What's new?
+            - Complete desktop shell with Quickshell
+            - Settings, Music, System Monitor, Files, Wallpaper, Power Menu
+            - Themes: AETHER Dark, Light, AMOLED, Midnight, Lavender, Ocean, Forest
+            - Installer with dry‑run, backups, repair and uninstall
+            - GitHub Pages website with documentation
+            - Hyprland integration (managed include)
+
+            ### Assets
+            - `aether-installer-<version>-x86_64-linux`
+            - `SHA256SUMS`
+
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          # Attach the uploaded artifacts
+          files: |
+            installer/target/release/aether-installer
+            installer/target/release/checksums.txt
+          # The above syntax may not work; we'll rely on the release action to automatically pick up artifacts.
+
+      - name: Download artifacts and upload to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*'
+          path: release-assets
+          merge-multiple: true
+
+      - name: Move assets to expected names
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          mv release-assets/aether-installer installer/target/release/aether-installer
+          mv release-assets/checksums.txt installer/target/release/checksums.txt
+          cd installer/target/release
+          sha256sum aether-installer > SHA256SUMS
+
+      - name: Create GitHub Release with assets (alternative)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          body: |
+            AETHER ${{ github.ref_name }} release.
+
+            ### What's new?
+            - Complete desktop shell with Quickshell
+            - Settings, Music, System Monitor, Files, Wallpaper, Power Menu
+            - Themes: Aether Dark, Light, AMOLED, Midnight, Lavender, Ocean, Forest
+            - Installer with dry‑run, backups, repair and uninstall
+            - GitHub Pages website with documentation
+            - Hyprland integration (managed include)
+
+          draft: false
+          prerelease: false
+          files: |
+            installer/target/release/aether-installer
+            installer/target/release/SHA256SUMS
+
+  # Optional: publish to Arch Linux AUR (requires manual steps)
+  publish-aur:
+    runs-on: ubuntu-latest
+    needs: build-installer
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Install SSH key
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Publish to AUR
+        run: |
+          # This is a placeholder; actual AUR publish requires a script.
+          echo "AUR publish skipped – manual step required"

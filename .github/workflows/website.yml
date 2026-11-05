@@ -1,0 +1,51 @@
+name: Deploy Website
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'website/**'
+      - '.github/workflows/website.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install dependencies
+        working-directory: website
+        run: npm ci
+
+      - name: Build website
+        working-directory: website
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: website/dist
+          # Ensure the subpath AETHER is used for GitHub Pages
+          # According to https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site#creating-your-site
+          cname: aether-desktop.github.io/AETHER/
+          # We use the 'AETHER' subdirectory; the workflow will deploy to https://username.github.io/AETHER/
+          # If you want to use a custom domain, you can add it here.
+          allow_empty_commit: true
+
+  # Optional: scheduled rebuild on changes to content
+  schedule:
+    - cron: '0 3 * * *' # Daily at 03:00 UTC
+      if: github.repository_owner == 'aether-desktop'
+
+  # Optional: manual trigger
+  workflow_dispatch: {}
